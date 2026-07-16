@@ -5,11 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>设置</title>
 
-    <!-- Font Awesome CDN (备用) -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <!-- ===== 预连接加速（CDN 备用） ===== -->
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" />
+    <link rel="dns-prefetch" href="https://cdn.jsdelivr.net" />
 
     <style>
-        /* ===== 全局重置 & 字体 ===== */
+        /* ===== 全局重置 & 文字字体 ===== */
         * {
             margin: 0;
             padding: 0;
@@ -19,43 +20,10 @@
         @font-face {
             font-family: 'SystemSans';
             src: url('../Sans/SystemSans.ttf') format('truetype');
-            font-weight: normal;
-            font-style: normal;
             font-display: swap;
         }
 
-        /* 本地 otf 字体备选（Font Awesome） */
-        @font-face {
-            font-family: 'Font Awesome 6 Free';
-            src: url('../Sans/Font Awesome 6 Free-Regular-400.otf') format('opentype');
-            font-weight: 400;
-            font-style: normal;
-            font-display: swap;
-        }
-        @font-face {
-            font-family: 'Font Awesome 6 Free';
-            src: url('../Sans/Font Awesome 6 Free-Solid-900.otf') format('opentype');
-            font-weight: 900;
-            font-style: normal;
-            font-display: swap;
-        }
-        @font-face {
-            font-family: 'Font Awesome 6 Brands';
-            src: url('../Sans/Font Awesome 6 Brands-Regular-400.otf') format('opentype');
-            font-weight: 400;
-            font-style: normal;
-            font-display: swap;
-        }
-
-        .fa-solid,
-        .fa-regular,
-        .fa-brands {
-            font-family: 'Font Awesome 6 Free', 'Font Awesome 6 Brands', 'FontAwesome', sans-serif;
-        }
-        .fa-solid { font-weight: 900; }
-        .fa-regular { font-weight: 400; }
-        .fa-brands { font-family: 'Font Awesome 6 Brands', 'FontAwesome', sans-serif; font-weight: 400; }
-
+        /* ===== 初始备用字体（无图标，但保证文字可读） ===== */
         body {
             font-family: 'SystemSans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             background: #FFFFFF;
@@ -72,7 +40,6 @@
             padding: 0 4px;
         }
 
-        /* ===== 标题：无下划线 ===== */
         .settings-title {
             font-size: 28px;
             font-weight: 600;
@@ -84,26 +51,19 @@
             align-items: center;
             gap: 12px;
             font-family: 'SystemSans', sans-serif;
-            /* 无 border-bottom */
         }
         .settings-title i {
             color: #6BACFF;
             font-size: 26px;
         }
 
-        /* ===== 设置项：无分割线 ===== */
         .setting-item {
             display: flex;
             align-items: center;
             justify-content: space-between;
             padding: 14px 0;
             min-height: 56px;
-            /* 无 border-bottom */
         }
-        .setting-item:last-of-type {
-            /* 无特殊样式 */
-        }
-
         .setting-item-left {
             display: flex;
             align-items: center;
@@ -117,6 +77,8 @@
             color: #6BACFF;
             font-size: 18px;
             flex-shrink: 0;
+            /* 初始使用系统字体，图标位置显示为占位方块 */
+            font-family: 'Font Awesome 6 Free', 'Font Awesome 6 Brands', sans-serif;
         }
         .setting-item-left .label {
             font-size: 16px;
@@ -125,7 +87,6 @@
             white-space: nowrap;
             font-family: 'SystemSans', sans-serif;
         }
-
         .setting-item-right {
             display: flex;
             align-items: center;
@@ -197,7 +158,7 @@
             transform: none !important;
         }
 
-        /* ===== 二级菜单容器 ===== */
+        /* ===== 二级菜单 ===== */
         .sub-items {
             overflow: hidden;
             max-height: 0;
@@ -214,10 +175,6 @@
         .sub-items .setting-item {
             padding: 10px 0;
             min-height: 48px;
-            /* 无分割线 */
-        }
-        .sub-items .setting-item:last-child {
-            /* 无特殊 */
         }
         .sub-items .setting-item-left .icon {
             font-size: 15px;
@@ -229,7 +186,7 @@
             color: #2C3E50;
         }
 
-        /* ===== 系统语言 下拉框 ===== */
+        /* ===== 系统语言下拉框 ===== */
         .lang-select {
             background: #F2F6FC;
             border: 1px solid #DDE5EF;
@@ -264,7 +221,6 @@
             cursor: pointer;
             padding: 10px 12px !important;
             margin: 2px 0;
-            /* 无边框、无背景 */
         }
         .sub-items .clickable .setting-item-right .expand-btn {
             color: #6BACFF;
@@ -272,7 +228,6 @@
             pointer-events: none;
             transform: none !important;
         }
-        /* 无 hover 效果，保持纯白 */
 
         /* ===== 响应式 ===== */
         @media (max-width: 500px) {
@@ -443,9 +398,225 @@
     (function() {
         'use strict';
 
-        // ============================================================
-        // 配置
-        // ============================================================
+        // ================================================================
+        //  1. 三层字体加载策略 (本地 WOFF2 → CDN → 本地 OTF)
+        // ================================================================
+
+        const FONT_STYLES = {
+            // 第一层：本地 WOFF2 (最快)
+            woff2: `
+                @font-face {
+                    font-family: 'Font Awesome 6 Free';
+                    src: url('../Sans/Font Awesome 6 Free-Regular-400.woff2') format('woff2');
+                    font-weight: 400;
+                    font-display: swap;
+                }
+                @font-face {
+                    font-family: 'Font Awesome 6 Free';
+                    src: url('../Sans/Font Awesome 6 Free-Solid-900.woff2') format('woff2');
+                    font-weight: 900;
+                    font-display: swap;
+                }
+                @font-face {
+                    font-family: 'Font Awesome 6 Brands';
+                    src: url('../Sans/Font Awesome 6 Brands-Regular-400.woff2') format('woff2');
+                    font-weight: 400;
+                    font-display: swap;
+                }
+                /* 强制刷新图标显示 */
+                .fa-solid, .fa-regular, .fa-brands {
+                    font-family: 'Font Awesome 6 Free', 'Font Awesome 6 Brands', sans-serif;
+                }
+                .fa-solid { font-weight: 900; }
+                .fa-regular { font-weight: 400; }
+                .fa-brands { font-family: 'Font Awesome 6 Brands', sans-serif; }
+            `,
+            // 第二层：CDN (备用)
+            cdn: `<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css">`,
+            // 第三层：本地 OTF (最后兜底)
+            otf: `
+                @font-face {
+                    font-family: 'Font Awesome 6 Free';
+                    src: url('../Sans/Font Awesome 6 Free-Regular-400.otf') format('opentype');
+                    font-weight: 400;
+                    font-display: swap;
+                }
+                @font-face {
+                    font-family: 'Font Awesome 6 Free';
+                    src: url('../Sans/Font Awesome 6 Free-Solid-900.otf') format('opentype');
+                    font-weight: 900;
+                    font-display: swap;
+                }
+                @font-face {
+                    font-family: 'Font Awesome 6 Brands';
+                    src: url('../Sans/Font Awesome 6 Brands-Regular-400.otf') format('opentype');
+                    font-weight: 400;
+                    font-display: swap;
+                }
+                .fa-solid, .fa-regular, .fa-brands {
+                    font-family: 'Font Awesome 6 Free', 'Font Awesome 6 Brands', sans-serif;
+                }
+                .fa-solid { font-weight: 900; }
+                .fa-regular { font-weight: 400; }
+                .fa-brands { font-family: 'Font Awesome 6 Brands', sans-serif; }
+            `
+        };
+
+        /**
+         * 加载字体样式（返回 Promise，成功时 resolve，超时 reject）
+         * @param {string} source - 'woff2' | 'cdn' | 'otf'
+         * @param {number} timeout - 超时毫秒
+         */
+        function loadFontSource(source, timeout) {
+            return new Promise((resolve, reject) => {
+                const styleId = 'font-loader-' + source;
+                let element;
+
+                if (source === 'cdn') {
+                    // CDN 使用 link 标签
+                    element = document.createElement('link');
+                    element.rel = 'stylesheet';
+                    element.href = FONT_STYLES.cdn.replace(/^<link rel="stylesheet" href="|">$/g, '');
+                    element.id = styleId;
+                    element.onload = () => resolve();
+                    element.onerror = () => reject(new Error('CDN load error'));
+                } else {
+                    // woff2 或 otf 使用 style 标签
+                    element = document.createElement('style');
+                    element.id = styleId;
+                    element.textContent = FONT_STYLES[source];
+                    element.onload = () => resolve(); // style 标签通常立即解析，但内容可能异步加载字体
+                    // 对于 @font-face，我们需要等待字体实际加载完成
+                }
+
+                // 注入到 head
+                document.head.appendChild(element);
+
+                // 对于 @font-face 样式，我们需要检查字体是否可用
+                if (source !== 'cdn') {
+                    // 等待 document.fonts 加载完成，并检查字体是否生效
+                    const fontFamily = 'Font Awesome 6 Free';
+                    const testString = ''; // 使用一个通用图标字符 (fa-home)
+                    const checkFont = () => {
+                        // 尝试用 document.fonts.check 检测
+                        // 但 check 需要文本和大小，且可能返回 false 即使已加载（bug）
+                        // 更可靠：创建一个隐藏元素测量宽度
+                        const el = document.createElement('span');
+                        el.style.fontFamily = fontFamily;
+                        el.style.position = 'absolute';
+                        el.style.visibility = 'hidden';
+                        el.textContent = testString;
+                        document.body.appendChild(el);
+                        const widthBefore = el.offsetWidth;
+                        // 替换字体为系统 sans-serif 比较宽度
+                        el.style.fontFamily = 'sans-serif';
+                        const widthAfter = el.offsetWidth;
+                        document.body.removeChild(el);
+                        // 如果宽度不同，说明字体已加载
+                        if (widthBefore !== widthAfter) {
+                            resolve();
+                        } else {
+                            // 未加载，继续等待
+                            setTimeout(checkFont, 100);
+                        }
+                    };
+
+                    // 等待 fonts.ready 触发，然后检查
+                    document.fonts.ready.then(() => {
+                        // ready 表示所有已声明的字体都加载完毕（或失败）
+                        // 但我们可能还需确认
+                        checkFont();
+                    }).catch(() => {
+                        // 如果 ready 失败，也尝试检查
+                        setTimeout(checkFont, 300);
+                    });
+
+                    // 另外设置一个总超时
+                    const timeoutId = setTimeout(() => {
+                        reject(new Error(`Font source ${source} timeout`));
+                    }, timeout);
+
+                    // 但我们需要在 resolve 时清除 timeout
+                    // 包装 resolve
+                    const origResolve = resolve;
+                    resolve = function() {
+                        clearTimeout(timeoutId);
+                        origResolve();
+                    };
+                    const origReject = reject;
+                    reject = function(err) {
+                        clearTimeout(timeoutId);
+                        origReject(err);
+                    };
+                } else {
+                    // CDN 的 link 已经有 onload/onerror，但也要超时
+                    const timeoutId = setTimeout(() => {
+                        reject(new Error(`CDN timeout`));
+                    }, timeout);
+
+                    // 包装 resolve/reject 以清除 timeout
+                    const origResolve = resolve;
+                    resolve = function() {
+                        clearTimeout(timeoutId);
+                        origResolve();
+                    };
+                    const origReject = reject;
+                    reject = function(err) {
+                        clearTimeout(timeoutId);
+                        origReject(err);
+                    };
+                }
+            });
+        }
+
+        /**
+         * 主加载流程：按顺序尝试 woff2 -> cdn -> otf
+         */
+        async function loadFonts() {
+            try {
+                // 1. 尝试本地 WOFF2，超时 20s
+                await loadFontSource('woff2', 20000);
+                console.log('[Font] 本地 WOFF2 加载成功');
+                return;
+            } catch (e) {
+                console.warn('[Font] WOFF2 加载失败或超时，切换 CDN', e.message);
+                // 移除失败的 woff2 样式
+                const woff2Style = document.getElementById('font-loader-woff2');
+                if (woff2Style) woff2Style.remove();
+            }
+
+            try {
+                // 2. 尝试 CDN，超时 10s
+                await loadFontSource('cdn', 10000);
+                console.log('[Font] CDN 加载成功');
+                return;
+            } catch (e) {
+                console.warn('[Font] CDN 加载失败或超时，切换 OTF', e.message);
+                // 移除 CDN link
+                const cdnLink = document.getElementById('font-loader-cdn');
+                if (cdnLink) cdnLink.remove();
+            }
+
+            try {
+                // 3. 最后尝试本地 OTF (无超时限制，但通常较快)
+                await loadFontSource('otf', 30000); // 给个30秒兜底
+                console.log('[Font] 本地 OTF 加载成功');
+            } catch (e) {
+                console.error('[Font] 所有字体源均加载失败，请检查文件路径', e);
+                // 此时图标将无法显示，但页面仍可操作
+            }
+        }
+
+        // 启动字体加载
+        loadFonts();
+
+        // ================================================================
+        //  2. 设置项逻辑 (IndexDB, 拨片, 二级菜单, 开发者跳转)
+        // ================================================================
+
+        // 与之前完全相同的业务逻辑代码，此处省略重复，只保留关键变量和函数声明，
+        // 实际请确保下面代码完整（或从之前复制）。
+
         const DB_NAME = 'setting';
         const STORE_NAME = 'settings';
 
@@ -459,9 +630,6 @@
         };
         const DEFAULT_STATE = 'C';
 
-        // ============================================================
-        // IndexDB 工具
-        // ============================================================
         function openDB() {
             return new Promise((resolve, reject) => {
                 const request = indexedDB.open(DB_NAME, 1);
@@ -524,9 +692,6 @@
             }
         }
 
-        // ============================================================
-        // UI 控制
-        // ============================================================
         function getToggleEl(id) {
             return document.getElementById(id);
         }
@@ -551,9 +716,7 @@
             const jzToggle = getToggleEl('toggle-jztsO');
             const expandBtn = document.getElementById('expand-push');
             const subPush = document.getElementById('sub-push');
-
             const pushOn = pushToggle ? pushToggle.classList.contains('active') : false;
-
             if (jzToggle) {
                 jzToggle.disabled = !pushOn;
                 jzToggle.style.opacity = pushOn ? '1' : '0.5';
@@ -572,14 +735,10 @@
             }
         }
 
-        // ============================================================
-        // 二级菜单展开/收起
-        // ============================================================
         function setupExpand(btnId, subId, parentToggleId) {
             const btn = document.getElementById(btnId);
             const sub = document.getElementById(subId);
             if (!btn || !sub) return;
-
             btn.addEventListener('click', function(e) {
                 e.stopPropagation();
                 if (this.disabled) return;
@@ -592,7 +751,6 @@
                     this.classList.add('expanded');
                 }
             });
-
             if (parentToggleId) {
                 const parentToggle = getToggleEl(parentToggleId);
                 if (parentToggle) {
@@ -606,9 +764,6 @@
             }
         }
 
-        // ============================================================
-        // 开发者点击跳转
-        // ============================================================
         function setupDeveloperClicks() {
             document.querySelectorAll('#sub-dev .clickable').forEach((item) => {
                 item.addEventListener('click', function(e) {
@@ -618,22 +773,16 @@
             });
         }
 
-        // ============================================================
-        // 拨片事件绑定
-        // ============================================================
         function setupToggles() {
             for (const [id, key] of Object.entries(TOGGLE_MAP)) {
                 const el = getToggleEl(id);
                 if (!el) continue;
-
                 el.addEventListener('click', async function(e) {
                     e.stopPropagation();
                     if (this.disabled) return;
-
                     const nowOn = this.classList.contains('active');
                     if (nowOn) this.classList.remove('active');
                     else this.classList.add('active');
-
                     const newState = this.classList.contains('active') ? 'O' : 'C';
                     try {
                         await saveSetting(key, newState);
@@ -643,52 +792,46 @@
                         else this.classList.add('active');
                         return;
                     }
-
                     if (id === 'toggle-tsO') updatePushDependency();
                     this.dispatchEvent(new Event('change'));
                 });
             }
         }
 
-        // ============================================================
-        // 初始化
-        // ============================================================
-        async function init() {
+        async function initSettings() {
             // 默认全部关闭
             for (const [id] of Object.entries(TOGGLE_MAP)) {
                 setToggleState(id, false);
             }
-
             const settings = await loadAllSettings();
             const merged = {};
             for (const key of Object.values(TOGGLE_MAP)) {
                 merged[key] = settings[key] || DEFAULT_STATE;
             }
             applySettingsToUI(merged);
-
             setupExpand('expand-push', 'sub-push', 'toggle-tsO');
             setupExpand('expand-dev', 'sub-dev', null);
             setupDeveloperClicks();
             setupToggles();
-
-            // 系统语言固定
             const langSelect = document.getElementById('lang-select');
             if (langSelect) {
                 langSelect.selectedIndex = 0;
                 langSelect.addEventListener('change', function() { this.selectedIndex = 0; });
             }
-
-            console.log('[设置] 初始化完成（纯白无横线）');
+            console.log('[设置] 设置项初始化完成');
         }
 
+        // 等 DOM 就绪再初始化设置项
         if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', init);
+            document.addEventListener('DOMContentLoaded', initSettings);
         } else {
-            init();
+            initSettings();
         }
 
+        // 暴露工具方便调试
         window.__settings = { loadAllSettings, saveSetting, TOGGLE_MAP, DEFAULT_STATE };
     })();
 </script>
+
 </body>
 </html>
