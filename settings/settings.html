@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>设置</title>
+
+    <!-- Font Awesome CDN (备用) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+    <style>
+        /* ===== 全局重置 & 字体 ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        @font-face {
+            font-family: 'SystemSans';
+            src: url('../Sans/SystemSans.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        /* 本地 otf 字体备选（Font Awesome） */
+        @font-face {
+            font-family: 'Font Awesome 6 Free';
+            src: url('../Sans/Font Awesome 6 Free-Regular-400.otf') format('opentype');
+            font-weight: 400;
+            font-style: normal;
+            font-display: swap;
+        }
+        @font-face {
+            font-family: 'Font Awesome 6 Free';
+            src: url('../Sans/Font Awesome 6 Free-Solid-900.otf') format('opentype');
+            font-weight: 900;
+            font-style: normal;
+            font-display: swap;
+        }
+        @font-face {
+            font-family: 'Font Awesome 6 Brands';
+            src: url('../Sans/Font Awesome 6 Brands-Regular-400.otf') format('opentype');
+            font-weight: 400;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        .fa-solid,
+        .fa-regular,
+        .fa-brands {
+            font-family: 'Font Awesome 6 Free', 'Font Awesome 6 Brands', 'FontAwesome', sans-serif;
+        }
+        .fa-solid { font-weight: 900; }
+        .fa-regular { font-weight: 400; }
+        .fa-brands { font-family: 'Font Awesome 6 Brands', 'FontAwesome', sans-serif; font-weight: 400; }
+
+        body {
+            font-family: 'SystemSans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: #FFFFFF;
+            color: #1E293B;
+            padding: 32px 20px 40px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .settings-container {
+            width: 100%;
+            max-width: 640px;
+            background: transparent;
+            padding: 0 4px;
+        }
+
+        /* ===== 标题：无下划线 ===== */
+        .settings-title {
+            font-size: 28px;
+            font-weight: 600;
+            color: #0B1E33;
+            letter-spacing: -0.3px;
+            padding-bottom: 20px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-family: 'SystemSans', sans-serif;
+            /* 无 border-bottom */
+        }
+        .settings-title i {
+            color: #6BACFF;
+            font-size: 26px;
+        }
+
+        /* ===== 设置项：无分割线 ===== */
+        .setting-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 0;
+            min-height: 56px;
+            /* 无 border-bottom */
+        }
+        .setting-item:last-of-type {
+            /* 无特殊样式 */
+        }
+
+        .setting-item-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            flex: 1;
+            min-width: 0;
+        }
+        .setting-item-left .icon {
+            width: 28px;
+            text-align: center;
+            color: #6BACFF;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+        .setting-item-left .label {
+            font-size: 16px;
+            font-weight: 450;
+            color: #1E293B;
+            white-space: nowrap;
+            font-family: 'SystemSans', sans-serif;
+        }
+
+        .setting-item-right {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            flex-shrink: 0;
+        }
+
+        /* ===== 拨片开关 ===== */
+        .toggle {
+            position: relative;
+            width: 46px;
+            height: 28px;
+            background: #D0D8E3;
+            border-radius: 14px;
+            cursor: pointer;
+            transition: background 0.2s ease;
+            flex-shrink: 0;
+            border: none;
+            outline: none;
+            padding: 0;
+            box-shadow: none;
+        }
+        .toggle::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 24px;
+            height: 24px;
+            background: #FFFFFF;
+            border-radius: 50%;
+            transition: transform 0.2s ease;
+            box-shadow: none;
+        }
+        .toggle.active {
+            background: #6BACFF;
+        }
+        .toggle.active::after {
+            transform: translateX(18px);
+        }
+        .toggle:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+        }
+
+        /* ===== 展开箭头 ===== */
+        .expand-btn {
+            background: none;
+            border: none;
+            color: #A0B2CC;
+            font-size: 15px;
+            cursor: pointer;
+            padding: 4px 6px;
+            transition: transform 0.2s ease, color 0.2s;
+            width: 28px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+        .expand-btn:hover {
+            color: #6BACFF;
+        }
+        .expand-btn.expanded {
+            transform: rotate(180deg);
+            color: #6BACFF;
+        }
+        .expand-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        /* ===== 二级菜单容器 ===== */
+        .sub-items {
+            overflow: hidden;
+            max-height: 0;
+            opacity: 0;
+            transition: max-height 0.3s ease, opacity 0.25s ease, padding 0.25s ease;
+            padding-left: 42px;
+            background: transparent;
+        }
+        .sub-items.open {
+            max-height: 300px;
+            opacity: 1;
+            padding: 6px 0 10px 42px;
+        }
+        .sub-items .setting-item {
+            padding: 10px 0;
+            min-height: 48px;
+            /* 无分割线 */
+        }
+        .sub-items .setting-item:last-child {
+            /* 无特殊 */
+        }
+        .sub-items .setting-item-left .icon {
+            font-size: 15px;
+            width: 24px;
+            color: #7BA9E0;
+        }
+        .sub-items .setting-item-left .label {
+            font-size: 15px;
+            color: #2C3E50;
+        }
+
+        /* ===== 系统语言 下拉框 ===== */
+        .lang-select {
+            background: #F2F6FC;
+            border: 1px solid #DDE5EF;
+            border-radius: 10px;
+            padding: 6px 32px 6px 16px;
+            font-size: 15px;
+            font-family: 'SystemSans', sans-serif;
+            color: #1E293B;
+            appearance: none;
+            -webkit-appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236BACFF' stroke-width='1.8' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 12px 8px;
+            cursor: default;
+            min-width: 130px;
+            text-align: center;
+            outline: none;
+            box-shadow: none;
+            transition: border-color 0.15s;
+        }
+        .lang-select:focus {
+            border-color: #6BACFF;
+        }
+        .lang-select option {
+            background: #FFFFFF;
+            font-family: 'SystemSans', sans-serif;
+        }
+
+        /* ===== 开发者子项（点击跳转） ===== */
+        .sub-items .clickable {
+            cursor: pointer;
+            padding: 10px 12px !important;
+            margin: 2px 0;
+            /* 无边框、无背景 */
+        }
+        .sub-items .clickable .setting-item-right .expand-btn {
+            color: #6BACFF;
+            cursor: pointer;
+            pointer-events: none;
+            transform: none !important;
+        }
+        /* 无 hover 效果，保持纯白 */
+
+        /* ===== 响应式 ===== */
+        @media (max-width: 500px) {
+            .settings-container { padding: 0 4px; }
+            .settings-title { font-size: 22px; }
+            .setting-item { padding: 12px 0; min-height: 50px; }
+            .setting-item-left .label { font-size: 15px; }
+            .sub-items { padding-left: 28px; }
+            .sub-items.open { padding-left: 28px; }
+            .lang-select { min-width: 110px; font-size: 14px; padding: 5px 28px 5px 12px; }
+            .toggle { width: 40px; height: 24px; }
+            .toggle::after { width: 20px; height: 20px; top: 2px; left: 2px; }
+            .toggle.active::after { transform: translateX(16px); }
+        }
+        @media (max-width: 400px) {
+            .setting-item-left .label { font-size: 14px; white-space: normal; word-break: break-word; }
+            .setting-item-left .icon { font-size: 16px; width: 22px; }
+            .sub-items { padding-left: 18px; }
+            .sub-items.open { padding-left: 18px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="settings-container" id="app">
+    <!-- 标题 -->
+    <div class="settings-title">
+        <i class="fa-solid fa-sliders"></i>
+        设置
+    </div>
+
+    <!-- ====== 推送 ====== -->
+    <div class="setting-item" data-key="push">
+        <div class="setting-item-left">
+            <span class="icon"><i class="fa-solid fa-bell"></i></span>
+            <span class="label">推送</span>
+        </div>
+        <div class="setting-item-right">
+            <button class="toggle" id="toggle-tsO" aria-label="推送开关"></button>
+            <button class="expand-btn" id="expand-push" aria-label="展开推送二级菜单">
+                <i class="fa-solid fa-chevron-down"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- 推送二级菜单 -->
+    <div class="sub-items" id="sub-push">
+        <div class="setting-item" data-key="jzPush">
+            <div class="setting-item-left">
+                <span class="icon"><i class="fa-regular fa-circle-dot"></i></span>
+                <span class="label">精准推送</span>
+            </div>
+            <div class="setting-item-right">
+                <button class="toggle" id="toggle-jztsO" aria-label="精准推送开关"></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ====== 允许个性化广告 ====== -->
+    <div class="setting-item" data-key="ad">
+        <div class="setting-item-left">
+            <span class="icon"><i class="fa-regular fa-rectangle-ad"></i></span>
+            <span class="label">允许个性化广告</span>
+        </div>
+        <div class="setting-item-right">
+            <button class="toggle" id="toggle-yxgxhggO" aria-label="允许个性化广告开关"></button>
+        </div>
+    </div>
+
+    <!-- ====== 跟踪器 ====== -->
+    <div class="setting-item" data-key="tracker">
+        <div class="setting-item-left">
+            <span class="icon"><i class="fa-solid fa-location-dot"></i></span>
+            <span class="label">跟踪器</span>
+        </div>
+        <div class="setting-item-right">
+            <button class="toggle" id="toggle-gzqO" aria-label="跟踪器开关"></button>
+        </div>
+    </div>
+
+    <!-- ====== 系统语言 ====== -->
+    <div class="setting-item" data-key="lang">
+        <div class="setting-item-left">
+            <span class="icon"><i class="fa-solid fa-globe"></i></span>
+            <span class="label">系统语言</span>
+        </div>
+        <div class="setting-item-right">
+            <select class="lang-select" id="lang-select" aria-label="系统语言">
+                <option value="zh-CN" selected>简体中文</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- ====== 用户体验优化计划 ====== -->
+    <div class="setting-item" data-key="ux">
+        <div class="setting-item-left">
+            <span class="icon"><i class="fa-regular fa-face-smile"></i></span>
+            <span class="label">用户体验优化计划</span>
+        </div>
+        <div class="setting-item-right">
+            <button class="toggle" id="toggle-yhtyyhjhO" aria-label="用户体验优化计划开关"></button>
+        </div>
+    </div>
+
+    <!-- ====== 数据训练 ====== -->
+    <div class="setting-item" data-key="data">
+        <div class="setting-item-left">
+            <span class="icon"><i class="fa-solid fa-database"></i></span>
+            <span class="label">数据训练</span>
+        </div>
+        <div class="setting-item-right">
+            <button class="toggle" id="toggle-sjxlO" aria-label="数据训练开关"></button>
+        </div>
+    </div>
+
+    <!-- ====== 开发者选项 ====== -->
+    <div class="setting-item" data-key="dev">
+        <div class="setting-item-left">
+            <span class="icon"><i class="fa-solid fa-code"></i></span>
+            <span class="label">开发者选项</span>
+        </div>
+        <div class="setting-item-right">
+            <button class="expand-btn" id="expand-dev" aria-label="展开开发者选项二级菜单">
+                <i class="fa-solid fa-chevron-down"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- 开发者二级菜单 -->
+    <div class="sub-items" id="sub-dev">
+        <div class="setting-item clickable" data-href="https://github.com/ytxxpia/NewPortal2026">
+            <div class="setting-item-left">
+                <span class="icon"><i class="fa-regular fa-file-code"></i></span>
+                <span class="label">查看源代码</span>
+            </div>
+            <div class="setting-item-right">
+                <button class="expand-btn" style="pointer-events:none;color:#6BACFF;">
+                    <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+        <div class="setting-item clickable" data-href="https://github.com/ytxxpia/NewPortal2026/blob/main/LICENSE">
+            <div class="setting-item-left">
+                <span class="icon"><i class="fa-regular fa-file-lines"></i></span>
+                <span class="label">许可证</span>
+            </div>
+            <div class="setting-item-right">
+                <button class="expand-btn" style="pointer-events:none;color:#6BACFF;">
+                    <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+        <div class="setting-item clickable" data-href="https://github.com/ytxxpia/NewPortal2026">
+            <div class="setting-item-left">
+                <span class="icon"><i class="fa-brands fa-github"></i></span>
+                <span class="label">仓库地址</span>
+            </div>
+            <div class="setting-item-right">
+                <button class="expand-btn" style="pointer-events:none;color:#6BACFF;">
+                    <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function() {
+        'use strict';
+
+        // ============================================================
+        // 配置
+        // ============================================================
+        const DB_NAME = 'setting';
+        const STORE_NAME = 'settings';
+
+        const TOGGLE_MAP = {
+            'toggle-tsO': 'tsO',
+            'toggle-jztsO': 'jztsO',
+            'toggle-yxgxhggO': 'yxgxhggO',
+            'toggle-gzqO': 'gzqO',
+            'toggle-yhtyyhjhO': 'yhtyyhjhO',
+            'toggle-sjxlO': 'sjxlO',
+        };
+        const DEFAULT_STATE = 'C';
+
+        // ============================================================
+        // IndexDB 工具
+        // ============================================================
+        function openDB() {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open(DB_NAME, 1);
+                request.onupgradeneeded = (ev) => {
+                    const db = ev.target.result;
+                    if (!db.objectStoreNames.contains(STORE_NAME)) {
+                        db.createObjectStore(STORE_NAME);
+                    }
+                };
+                request.onsuccess = () => resolve(request.result);
+                request.onerror = () => reject(request.error);
+            });
+        }
+
+        async function loadAllSettings() {
+            try {
+                const db = await openDB();
+                return new Promise((resolve, reject) => {
+                    const tx = db.transaction(STORE_NAME, 'readonly');
+                    const store = tx.objectStore(STORE_NAME);
+                    const req = store.getAllKeys();
+                    req.onsuccess = () => {
+                        const keys = req.result;
+                        if (keys.length === 0) { resolve({}); return; }
+                        const results = {};
+                        let pending = keys.length;
+                        let errorOccurred = false;
+                        keys.forEach((key) => {
+                            const getReq = store.get(key);
+                            getReq.onsuccess = () => {
+                                results[key] = getReq.result;
+                                pending -= 1;
+                                if (pending === 0) resolve(results);
+                            };
+                            getReq.onerror = () => {
+                                if (!errorOccurred) { errorOccurred = true; reject(getReq.error); }
+                            };
+                        });
+                    };
+                    req.onerror = () => reject(req.error);
+                });
+            } catch (err) {
+                console.warn('[IndexDB] 读取失败，使用默认值', err);
+                return {};
+            }
+        }
+
+        async function saveSetting(key, value) {
+            try {
+                const db = await openDB();
+                return new Promise((resolve, reject) => {
+                    const tx = db.transaction(STORE_NAME, 'readwrite');
+                    const store = tx.objectStore(STORE_NAME);
+                    const req = store.put(value, key);
+                    req.onsuccess = () => resolve();
+                    req.onerror = () => reject(req.error);
+                });
+            } catch (err) {
+                console.warn('[IndexDB] 保存失败', key, value, err);
+            }
+        }
+
+        // ============================================================
+        // UI 控制
+        // ============================================================
+        function getToggleEl(id) {
+            return document.getElementById(id);
+        }
+
+        function setToggleState(id, isActive) {
+            const el = getToggleEl(id);
+            if (!el) return;
+            if (isActive) el.classList.add('active');
+            else el.classList.remove('active');
+        }
+
+        function applySettingsToUI(settings) {
+            for (const [id, key] of Object.entries(TOGGLE_MAP)) {
+                const val = settings[key];
+                setToggleState(id, (val === 'O'));
+            }
+            updatePushDependency();
+        }
+
+        function updatePushDependency() {
+            const pushToggle = getToggleEl('toggle-tsO');
+            const jzToggle = getToggleEl('toggle-jztsO');
+            const expandBtn = document.getElementById('expand-push');
+            const subPush = document.getElementById('sub-push');
+
+            const pushOn = pushToggle ? pushToggle.classList.contains('active') : false;
+
+            if (jzToggle) {
+                jzToggle.disabled = !pushOn;
+                jzToggle.style.opacity = pushOn ? '1' : '0.5';
+            }
+            if (expandBtn) {
+                expandBtn.disabled = !pushOn;
+                if (!pushOn) {
+                    if (subPush) {
+                        subPush.classList.remove('open');
+                        expandBtn.classList.remove('expanded');
+                    }
+                }
+            }
+            if (subPush) {
+                subPush.style.opacity = pushOn ? '1' : '0.4';
+            }
+        }
+
+        // ============================================================
+        // 二级菜单展开/收起
+        // ============================================================
+        function setupExpand(btnId, subId, parentToggleId) {
+            const btn = document.getElementById(btnId);
+            const sub = document.getElementById(subId);
+            if (!btn || !sub) return;
+
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                if (this.disabled) return;
+                const isOpen = sub.classList.contains('open');
+                if (isOpen) {
+                    sub.classList.remove('open');
+                    this.classList.remove('expanded');
+                } else {
+                    sub.classList.add('open');
+                    this.classList.add('expanded');
+                }
+            });
+
+            if (parentToggleId) {
+                const parentToggle = getToggleEl(parentToggleId);
+                if (parentToggle) {
+                    parentToggle.addEventListener('change', function() {
+                        if (!this.classList.contains('active')) {
+                            sub.classList.remove('open');
+                            btn.classList.remove('expanded');
+                        }
+                    });
+                }
+            }
+        }
+
+        // ============================================================
+        // 开发者点击跳转
+        // ============================================================
+        function setupDeveloperClicks() {
+            document.querySelectorAll('#sub-dev .clickable').forEach((item) => {
+                item.addEventListener('click', function(e) {
+                    const href = this.dataset.href;
+                    if (href) window.open(href, '_blank');
+                });
+            });
+        }
+
+        // ============================================================
+        // 拨片事件绑定
+        // ============================================================
+        function setupToggles() {
+            for (const [id, key] of Object.entries(TOGGLE_MAP)) {
+                const el = getToggleEl(id);
+                if (!el) continue;
+
+                el.addEventListener('click', async function(e) {
+                    e.stopPropagation();
+                    if (this.disabled) return;
+
+                    const nowOn = this.classList.contains('active');
+                    if (nowOn) this.classList.remove('active');
+                    else this.classList.add('active');
+
+                    const newState = this.classList.contains('active') ? 'O' : 'C';
+                    try {
+                        await saveSetting(key, newState);
+                    } catch (err) {
+                        console.warn('[IndexDB] 保存失败，回滚', key, err);
+                        if (this.classList.contains('active')) this.classList.remove('active');
+                        else this.classList.add('active');
+                        return;
+                    }
+
+                    if (id === 'toggle-tsO') updatePushDependency();
+                    this.dispatchEvent(new Event('change'));
+                });
+            }
+        }
+
+        // ============================================================
+        // 初始化
+        // ============================================================
+        async function init() {
+            // 默认全部关闭
+            for (const [id] of Object.entries(TOGGLE_MAP)) {
+                setToggleState(id, false);
+            }
+
+            const settings = await loadAllSettings();
+            const merged = {};
+            for (const key of Object.values(TOGGLE_MAP)) {
+                merged[key] = settings[key] || DEFAULT_STATE;
+            }
+            applySettingsToUI(merged);
+
+            setupExpand('expand-push', 'sub-push', 'toggle-tsO');
+            setupExpand('expand-dev', 'sub-dev', null);
+            setupDeveloperClicks();
+            setupToggles();
+
+            // 系统语言固定
+            const langSelect = document.getElementById('lang-select');
+            if (langSelect) {
+                langSelect.selectedIndex = 0;
+                langSelect.addEventListener('change', function() { this.selectedIndex = 0; });
+            }
+
+            console.log('[设置] 初始化完成（纯白无横线）');
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
+
+        window.__settings = { loadAllSettings, saveSetting, TOGGLE_MAP, DEFAULT_STATE };
+    })();
+</script>
+</body>
+</html>
